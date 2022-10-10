@@ -185,7 +185,16 @@ function getSprites() -- oof oww memory locations
 end
 
 function getScore()
-	score = 0
+	local score
+	for digit=0,8 do
+		local scoreDigit = memory.readbyte(0x011D - digit)
+		if(scoreDigit > 10) then
+			score += scoreDigit * 10 * math.exp(digit)
+		end
+	end
+
+	print(score)
+	return score
 end
 
 function getExtendedSprites()
@@ -215,6 +224,7 @@ function getInputs()
 	
 	sprites = getSprites()
 	extended = getExtendedSprites()
+	-- score = getScore()
 	
 	local inputs = {}
 	
@@ -892,7 +902,8 @@ end
 
 function initializeRun()
 	savestate.load(Filename);
-	rightmost = 0
+	-- rightmost = 0
+	score = 0
 	pool.currentFrame = 0
 	timeout = TimeoutConstant
 	clearJoypad()
@@ -1228,21 +1239,25 @@ while true do
 	joypad.set(controller)
 
 	getPositions()
-	if marioX > rightmost then
-		rightmost = marioX
-		timeout = TimeoutConstant
-	end
+	-- if marioX > rightmost then
+	-- 	rightmost = marioX
+	-- 	timeout = TimeoutConstant
+	-- end
+	score = getScore()
 	
 	timeout = timeout - 1
 	
 	
 	local timeoutBonus = pool.currentFrame / 4
 	if timeout + timeoutBonus <= 0 then
-		local fitness = rightmost - pool.currentFrame / 2
-		if gameinfo.getromname() == "Super Mario World (USA)" and rightmost > 4816 then
-			fitness = fitness + 1000
-		end
-		if gameinfo.getromname() == "Super Mario Bros." and rightmost > 3186 then
+		local fitness = score
+		-- if gameinfo.getromname() == "Super Mario World (USA)" and rightmost > 4816 then
+		-- 	fitness = fitness + 1000
+		-- end
+		-- if gameinfo.getromname() == "Super Mario Bros." and rightmost > 3186 then
+		-- 	fitness = fitness + 1000
+		-- end
+		if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" and score > 30000 then -- meet "win" conditions
 			fitness = fitness + 1000
 		end
 		if fitness == 0 then
@@ -1277,7 +1292,7 @@ while true do
 	end
 	if not forms.ischecked(hideBanner) then
 		gui.drawText(0, 0, "Gen " .. pool.generation .. " species " .. pool.currentSpecies .. " genome " .. pool.currentGenome .. " (" .. math.floor(measured/total*100) .. "%)", 0xFF000000, 11)
-		gui.drawText(0, 12, "Fitness: " .. math.floor(rightmost - (pool.currentFrame) / 2 - (timeout + timeoutBonus)*2/3), 0xFF000000, 11)
+		gui.drawText(0, 12, "Fitness: " .. math.floor(score - (pool.currentFrame) / 2 - (timeout + timeoutBonus)*2/3), 0xFF000000, 11)
 		gui.drawText(100, 12, "Max Fitness: " .. math.floor(pool.maxFitness), 0xFF000000, 11)
 	end
 		
