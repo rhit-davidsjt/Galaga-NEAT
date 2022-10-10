@@ -171,26 +171,26 @@ function getSprites() -- oof oww memory locations
 	
 	if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 		local sprites = {}
-		for slot=0,11 do
-			local status = memory.readbyte(0x14C8+slot)
-			if status ~= 0 then
-				spritex = memory.readbyte(0xE4+slot) + memory.readbyte(0x14E0+slot)*256
-				spritey = memory.readbyte(0xD8+slot) + memory.readbyte(0x14D4+slot)*256
-				sprites[#sprites+1] = {["x"]=spritex, ["y"]=spritey}
+		for slot=0,4 do
+			local enemy = memory.readbyte(0xF+slot)
+			if enemy ~= 0 then
+				local ex = memory.readbyte(0x6E + slot)*0x100 + memory.readbyte(0x87+slot)
+				local ey = memory.readbyte(0xCF + slot)+24
+				sprites[#sprites+1] = {["x"]=ex,["y"]=ey}
 			end
-		end		
+		end	
 
 		return sprites
 	end
 end
 
 function getScore()
-	local score
-	for digit=0,8 do
-		local scoreDigit = memory.readbyte(0x011D - digit)
-		if(scoreDigit > 10) then
-			score += scoreDigit * 10 * math.exp(digit)
-		end
+	local score = 0
+	for digit=0,6 do
+		local scoreDigit = memory.readbyte(0xE6 + digit)
+		-- if(scoreDigit > 10) then
+			score = score + scoreDigit * 10 * math.exp(digit)
+		-- end
 	end
 
 	print(score)
