@@ -35,8 +35,8 @@ if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 	ButtonNames = {
 		"A",
 		"B",
-		"Up",
-		"Down",
+		-- "Up",
+		-- "Down",
 		"Left",
 		"Right",
 	}
@@ -65,7 +65,7 @@ StepSize = 0.1
 DisableMutationChance = 0.4
 EnableMutationChance = 0.2
 
-TimeoutConstant = 20
+TimeoutConstant = 600
 
 MaxNodes = 1000000
 
@@ -187,13 +187,11 @@ end
 function getScore()
 	local score = 0
 	for digit=0,6 do
-		local scoreDigit = memory.readbyte(0xE6 + digit)
-		-- if(scoreDigit > 10) then
-			score = score + scoreDigit * 10 * math.exp(digit)
-		-- end
+		local scoreDigit = memory.readbyte(0xE6 - digit)
+		score = score + scoreDigit * 10^digit
 	end
 
-	print(score)
+	-- print(score)
 	return score
 end
 
@@ -1292,7 +1290,8 @@ while true do
 	end
 	if not forms.ischecked(hideBanner) then
 		gui.drawText(0, 0, "Gen " .. pool.generation .. " species " .. pool.currentSpecies .. " genome " .. pool.currentGenome .. " (" .. math.floor(measured/total*100) .. "%)", 0xFF000000, 11)
-		gui.drawText(0, 12, "Fitness: " .. math.floor(score - (pool.currentFrame) / 2 - (timeout + timeoutBonus)*2/3), 0xFF000000, 11)
+		-- gui.drawText(0, 12, "Fitness: " .. math.floor(rightmost - (pool.currentFrame) / 2 - (timeout + timeoutBonus)*2/3), 0xFF000000, 11)
+		gui.drawText(0, 12, "Fitness: " .. score)
 		gui.drawText(100, 12, "Max Fitness: " .. math.floor(pool.maxFitness), 0xFF000000, 11)
 	end
 		
