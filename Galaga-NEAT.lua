@@ -65,7 +65,7 @@ StepSize = 0.1
 DisableMutationChance = 0.4
 EnableMutationChance = 0.2
 
-TimeoutConstant = 600
+TimeoutConstant = 800
 
 MaxNodes = 1000000
 
@@ -902,6 +902,7 @@ function initializeRun()
 	savestate.load(Filename);
 	-- rightmost = 0
 	score = 0
+	prevScore = 0
 	pool.currentFrame = 0
 	timeout = TimeoutConstant
 	clearJoypad()
@@ -964,7 +965,7 @@ function displayGenome(genome)
 		for dx=-BoxRadius,BoxRadius do
 			cell = {}
 			cell.x = 50+5*dx
-			cell.y = 70+5*dy
+			cell.y = 80+5*dy
 			cell.value = network.neurons[i].value
 			cells[i] = cell
 			i = i + 1
@@ -978,17 +979,17 @@ function displayGenome(genome)
 	
 	for o = 1,Outputs do
 		cell = {}
-		cell.x = 220
-		cell.y = 30 + 8 * o
+		cell.x = 204
+		cell.y = 70 + 10 * o
 		cell.value = network.neurons[MaxNodes + o].value
 		cells[MaxNodes+o] = cell
 		local color
 		if cell.value > 0 then
-			color = 0xFF0000FF
+			color = 0xFF00FFFF -- 0xFF0000FF
 		else
-			color = 0xFF000000
+			color = 0xA0FFFFFF-- 0xFF000000
 		end
-		gui.drawText(223, 24+8*o, ButtonNames[o], color, 9)
+		gui.drawText(cell.x + 4, cell.y-8 --[[+8*o --]], ButtonNames[o], color, 9)
 	end
 	
 	for n,neuron in pairs(network.neurons) do
@@ -1237,14 +1238,18 @@ while true do
 	joypad.set(controller)
 
 	getPositions()
+
 	-- if marioX > rightmost then
 	-- 	rightmost = marioX
 	-- 	timeout = TimeoutConstant
 	-- end
+	prevScore = score
 	score = getScore()
-	
-	timeout = timeout - 1
-	
+	if(prevScore == score) then 
+		timeout = timeout - 1	
+	else
+		timeout = TimeoutConstant
+	end	
 	
 	local timeoutBonus = pool.currentFrame / 4
 	if timeout + timeoutBonus <= 0 then
