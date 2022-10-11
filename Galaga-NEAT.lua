@@ -48,7 +48,7 @@ InputSize = (BoxRadius*2+1)*(BoxRadius*2+1)
 Inputs = InputSize+1
 Outputs = #ButtonNames
 
-Population = 300
+Population = 100
 DeltaDisjoint = 2.0
 DeltaWeights = 0.4
 DeltaThreshold = 1.0
@@ -89,7 +89,7 @@ function getPositions()
 
 	if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 		playerX = memory.readbyte(0x0016) -- X pos
-		playerY = 0 -- memory.readbyte() -- Y pos, don't need
+		playerY = memory.readbyte(0x0018) -- memory.readbyte() -- Y pos, don't need
 		-- screenX = memory.readbyte(0x03AD) -- might need to change? unsure
 		-- screenY = memory.readbyte(0x03B8) -- also might not need, since screen position is always equal to player position
 	end
@@ -171,12 +171,15 @@ function getSprites() -- oof oww memory locations
 	
 	if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 		local sprites = {}
-		for slot=0,4 do
-			local enemy = memory.readbyte(0xF+slot)
+		local numSpritesOnScreen = memory.readbyte(0x0490) + memory.readbyte(0x0495)
+		for slot=0,numSpritesOnScreen-1 do
+			-- local enemy = memory.readbyte(0x0A12 + slot*0x10) used to be a different address, no longer needed
 			if enemy ~= 0 then
-				local ex = memory.readbyte(0x6E + slot)*0x100 + memory.readbyte(0x87+slot)
-				local ey = memory.readbyte(0xCF + slot)+24
-				sprites[#sprites+1] = {["x"]=ex,["y"]=ey}
+				local ex = memory.readbyte(0x0A13 + slot*0x10) -- memory.readbyte(0x6E + slot)*0x100 + memory.readbyte(0x87+slot)
+				local ey = memory.readbyte(0x0A12 + slot*0x10)
+				if(ey < 0xE0) then
+					sprites[#sprites+1] = {["x"]=ex,["y"]=ey}
+				end
 			end
 		end	
 
@@ -222,7 +225,6 @@ function getInputs()
 	
 	sprites = getSprites()
 	extended = getExtendedSprites()
-	-- score = getScore()
 	
 	local inputs = {}
 	
@@ -231,13 +233,13 @@ function getInputs()
 			inputs[#inputs+1] = 0
 			
 			tile = getTile(dx, dy)
-			if tile == 1 and playerY+dy < 0x1B0 then
-				inputs[#inputs] = 1
+			if tile == 1 --[[and playerY+dy < 0x1B0 --]] then
+				-- inputs[#inputs] = 1
 			end
 			
 			for i = 1,#sprites do
-				distx = math.abs(sprites[i]["x"] - (playerX+dx))
-				disty = math.abs(sprites[i]["y"] - (playerY + dy))
+				distx = math.abs(sprites[i]["x"] - (playerX+dx)) -- playerX+dx
+				disty = math.abs(sprites[i]["y"] - (playerY+dy)) -- playerY+dy
 				if distx <= 8 and disty <= 8 then
 					inputs[#inputs] = -1
 				end
@@ -965,7 +967,7 @@ function displayGenome(genome)
 		for dx=-BoxRadius,BoxRadius do
 			cell = {}
 			cell.x = 50+5*dx
-			cell.y = 80+5*dy
+			cell.y = 75+5*dy
 			cell.value = network.neurons[i].value
 			cells[i] = cell
 			i = i + 1
@@ -1044,10 +1046,10 @@ function displayGenome(genome)
 		if n > Inputs or cell.value ~= 0 then
 			local color = math.floor((cell.value+1)/2*256)
 			if color > 255 then color = 255 end
-			if color < 0 then color = 0 end
+			if color < 0 then color = 10 end
 			local opacity = 0xFF000000
 			if cell.value == 0 then
-				opacity = 0x50000000
+				opacity = 0xA0000000 -- 0x50000000
 			end
 			color = opacity + color*0x10000 + color*0x100 + color
 			gui.drawBox(cell.x-2,cell.y-2,cell.x+2,cell.y+2,opacity,color)
@@ -1072,12 +1074,12 @@ function displayGenome(genome)
 		end
 	end
 	
-	gui.drawBox(49,71,51,78,0x00000000,0x80FF0000)
+	gui.drawBox(49,85,51,92,0x00000000,0x80FF0000) -- player line? default: 49,71,51,78,0x00000000,0x80FF0000
 	
 	if forms.ischecked(showMutationRates) then
-		local pos = 100
+		local pos = 120
 		for mutation,rate in pairs(genome.mutationRates) do
-			gui.drawText(100, pos, mutation .. ": " .. rate, 0xFF000000, 10)
+			gui.drawText(15, pos, mutation .. ": " .. rate, 0xA0FFFFFF, 10)
 			pos = pos + 8
 		end
 	end
