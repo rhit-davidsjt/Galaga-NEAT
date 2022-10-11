@@ -33,7 +33,7 @@ print(gameinfo.getromname())
 if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 	Filename = "Galaga.State"
 	ButtonNames = {
-		"A",
+		-- "A",
 		"B",
 		-- "Up",
 		-- "Down",
@@ -65,7 +65,7 @@ StepSize = 0.1
 DisableMutationChance = 0.4
 EnableMutationChance = 0.2
 
-TimeoutConstant = 800
+TimeoutConstant = 1500
 
 MaxNodes = 1000000
 
@@ -1298,8 +1298,8 @@ while true do
 	if not forms.ischecked(hideBanner) then
 		gui.drawText(0, 0, "Gen " .. pool.generation .. " species " .. pool.currentSpecies .. " genome " .. pool.currentGenome .. " (" .. math.floor(measured/total*100) .. "%)", 0xFF000000, 11)
 		-- gui.drawText(0, 12, "Fitness: " .. math.floor(rightmost - (pool.currentFrame) / 2 - (timeout + timeoutBonus)*2/3), 0xFF000000, 11)
-		gui.drawText(0, 12, "Fitness: " .. score)
-		gui.drawText(100, 12, "Max Fitness: " .. math.floor(pool.maxFitness), 0xFF000000, 11)
+		gui.drawText(0, 12, "Fit: " .. score, 0xFF000000, 11)
+		gui.drawText(100, 12, "Max Fit: " .. math.floor(pool.maxFitness), 0xFF000000, 11)
 	end
 		
 	pool.currentFrame = pool.currentFrame + 1
