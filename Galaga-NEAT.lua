@@ -43,7 +43,7 @@ if gameinfo.getromname() == "Galaga - Demons of Death (U) [!]" then
 end
 
 BoxRadius = 6
-InputSize = (BoxRadius*2+1)*(BoxRadius*2+1)
+InputSize = (BoxRadius*2+1)*(BoxRadius*2+1) 
 
 Inputs = InputSize+1
 Outputs = #ButtonNames
